@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatMaster</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #fafafa;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: white;
+            padding: 1rem;
+            border-bottom: 1px solid #dbdbdb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            color: #262626;
+            text-decoration: none;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #0095f6;
+        }
+
+        .message-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .message-icon img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background-color: #ed4956;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .conversations {
+            width: 300px;
+            background-color: white;
+            border-right: 1px solid #dbdbdb;
+            overflow-y: auto;
+        }
+
+        .conversation {
+            padding: 1rem;
+            border-bottom: 1px solid #dbdbdb;
+            cursor: pointer;
+        }
+
+        .conversation:hover {
+            background-color: #fafafa;
+        }
+
+        .conversation.active {
+            background-color: #f0f0f0;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            border-bottom: 1px solid #dbdbdb;
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            max-width: 70%;
+        }
+
+        .message.sent {
+            margin-left: auto;
+        }
+
+        .message-content {
+            padding: 0.75rem;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+        }
+
+        .message.sent .message-content {
+            background-color: #0095f6;
+            color: white;
+        }
+
+        .message-input-container {
+            padding: 1rem;
+            border-top: 1px solid #dbdbdb;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #0095f6;
+        }
+
+        .send-button {
+            padding: 0.75rem 1.5rem;
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .send-button:hover {
+            background-color: #0081d6;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #dbdbdb;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-result {
+            padding: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-result:hover {
+            background-color: #fafafa;
+        }
+
+        .message-button {
+            padding: 0.5rem 1rem;
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .message-button:hover {
+            background-color: #0081d6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="#" class="logo">ChatMaster</a>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search users...">
+            <div class="search-results"></div>
+        </div>
+        <div class="message-icon">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMSAxNWEyIDIgMCAwIDEtMiAySDdsLTQgNFY1YTIgMiAwIDAgMSAyLTJoMTJhMiAyIDAgMCAxIDIgMnYxMHoiPjwvcGF0aD48L3N2Zz4=" alt="Messages">
+            <div class="notification-dot"></div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="conversations"></div>
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>Select a conversation</h2>
+            </div>
+            <div class="chat-messages"></div>
+            <div class="message-input-container">
+                <input type="text" class="message-input" placeholder="Type a message...">
+                <button class="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!token || !user) {
+            window.location.href = 'login.html';
+        }
+
+        // Initialize Socket.IO
+        const socket = io();
+        socket.emit('join', user.id);
+
+        // DOM Elements
+        const searchInput = document.querySelector('.search-input');
+        const searchResults = document.querySelector('.search-results');
+        const conversations = document.querySelector('.conversations');
+        const chatMessages = document.querySelector('.chat-messages');
+        const messageInput = document.querySelector('.message-input');
+        const sendButton = document.querySelector('.send-button');
+        const notificationDot = document.querySelector('.notification-dot');
+
+        let currentChat = null;
+
+        // Search users
+        searchInput.addEventListener('input', async (e) => {
+            const query = e.target.value;
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/users/search?q=${query}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const users = await response.json();
+                
+                searchResults.innerHTML = users.map(user => `
+                    <div class="search-result">
+                        <span>${user.username}</span>
+                        <button class="message-button" data-user-id="${user._id}">Message</button>
+                    </div>
+                `).join('');
+                
+                searchResults.style.display = 'block';
+            } catch (error) {
+                console.error('Error searching users:', error);
+            }
+        });
+
+        // Handle message button clicks
+        searchResults.addEventListener('click', (e) => {
+            if (e.target.classList.contains('message-button')) {
+                const userId = e.target.dataset.userId;
+                openChat(userId);
+                searchResults.style.display = 'none';
+                searchInput.value = '';
+            }
+        });
+
+        // Load conversations
+        async function loadConversations() {
+            try {
+                const response = await fetch('/api/messages/conversations', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                
+                conversations.innerHTML = data.map(conv => `
+                    <div class="conversation" data-user-id="${conv._id}">
+                        <div class="username">${conv.username}</div>
+                        <div class="last-message">${conv.lastMessage.content}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading conversations:', error);
+            }
+        }
+
+        // Open chat with user
+        async function openChat(userId) {
+            currentChat = userId;
+            try {
+                const response = await fetch(`/api/messages/conversation/${userId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const messages = await response.json();
+                
+                chatMessages.innerHTML = messages.map(msg => `
+                    <div class="message ${msg.sender === user.id ? 'sent' : 'received'}">
+                        <div class="message-content">${msg.content}</div>
+                    </div>
+                `).join('');
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Mark messages as read
+                await fetch(`/api/messages/read/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const content = messageInput.value.trim();
+            if (!content || !currentChat) return;
+
+            try {
+                socket.emit('sendMessage', {
+                    senderId: user.id,
+                    receiverId: currentChat,
+                    message: content
+                });
+
+                messageInput.value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Socket.IO event handlers
+        socket.on('newMessage', (data) => {
+            if (currentChat === data.senderId) {
+                chatMessages.innerHTML += `
+                    <div class="message received">
+                        <div class="message-content">${data.message}</div>
+                    </div>
+                `;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } else {
+                notificationDot.style.display = 'block';
+            }
+            loadConversations();
+        });
+
+        // Load initial conversations
+        loadConversations();
+    </script>
+</body>
+</html> 
